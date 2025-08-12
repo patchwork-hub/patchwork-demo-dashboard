@@ -1,4 +1,4 @@
-run-name: Deploy to Mo-Me Dashboard by @${{ github.actor }}
+run-name: Deploy to Pachwork Demo Dashboard by @${{ github.actor }}
 
 on:
   workflow_dispatch:
@@ -8,7 +8,8 @@ on:
 
 env:
   DEFINITION:
-    .task/mome-dashboard.json
+    .task/patchwork-demo-dashboard.json
+
 
 permissions:
   contents: read
