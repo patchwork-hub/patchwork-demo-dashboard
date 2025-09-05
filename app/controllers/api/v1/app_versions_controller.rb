@@ -13,20 +13,20 @@ module Api
 				end
 
 				app_version_history = fetch_version_history
-				app_version_history.present? ? render(json: { data: app_version_history }) : render_error(message: 'Record not found!', status_code: 404)	
+				app_version_history.present? ? render(json: { data: app_version_history }) : render_error(message: 'Record not found!', status_code: 404)
 			end
-		
+
 			private
-		
+
 				def set_app_version
-					key = app_version_params[:app_name]&.to_sym || :mo_me
- 					app_name = AppVersion.app_names[key] || AppVersion.app_names[:mo_me]
+					key = app_version_params[:app_name]&.to_sym || :patchwork
+ 					app_name = AppVersion.app_names[key] || AppVersion.app_names[:patchwork]
 					@app_version = AppVersion.find_by(
 						version_name: app_version_params[:current_app_version],
 						app_name: app_name
 					)
 				end
-			
+
 				def render_error(message: "", status_code: 400)
 					render json: { error: message }, status: status_code
 				end
