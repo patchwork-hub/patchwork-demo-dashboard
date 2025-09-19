@@ -43,7 +43,7 @@ module ApplicationHelper
       if is_channel_dashboard?
         links << { path: wait_lists_path, id: 'invitation-codes-link', header: 'Invitation codes', icon: 'invitation_code.svg', text: 'Invitation codes', active_if: 'wait_lists' }
       end
-      links << { path: app_versions_path(app_name: AppVersion.app_names['patchwork']), id: 'app-versions-link', header: 'App versions', icon: 'sliders.svg', text: 'App versions', active_if: 'app_versions' }
+      links << { path: app_versions_path(app_name: AppVersion.app_names['mo_me']), id: 'app-versions-link', header: 'App versions', icon: 'sliders.svg', text: 'App versions', active_if: 'app_versions' }
 
       unless is_channel_dashboard?
         links += [
@@ -130,14 +130,14 @@ module ApplicationHelper
 
   def is_channel_dashboard?
     if Rails.env.development?
-      return false
+      return true
     end
 
     mastodon_url = ENV['MASTODON_INSTANCE_URL']
     return false if mastodon_url.nil?
 
     case mastodon_url
-    when /channel/
+    when %r{^(https://)?channel\.org(?=/|$)}
       true
     when /staging\.patchwork\.online/
       true
