@@ -55,14 +55,26 @@ module Api
       ].freeze
 
       DEFAULT_FIND_OUT_CHANNELS = [
-        { slug: 'us-politics', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'us-politics', channel_type: Community.channel_types[:newsmast] },        
+        { slug: 'newyork', channel_type: Community.channel_types[:channel_feed] },
         { slug: 'activism-civil-rights', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'privacy', channel_type: Community.channel_types[:channel_feed] },
         { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
-        { slug: 'democracy-human-rights', channel_type: Community.channel_types[:newsmast]},
-        { slug: 'news-comment-data', channel_type: Community.channel_types[:newsmast] },
         { slug: 'lgbtq', channel_type: Community.channel_types[:newsmast] },
         { slug: 'us-sport', channel_type: Community.channel_types[:newsmast]}
       ].freeze
+
+      DEFAULT_LEICESTER_CHANNELS = [
+        { slug: 'Leicester', channel_type: Community.channel_types[:channel_feed] },
+        { slug: 'activism-civil-rights', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'trees', channel_type: Community.channel_types[:channel_feed] },
+        { slug: 'podcasting', channel_type: Community.channel_types[:channel_feed] },
+        { slug: 'greens', channel_type: Community.channel_types[:channel]},
+        { slug: 'fedibookclub', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'NoticiasBrasil', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'RenewedResistance', channel_type: Community.channel_types[:channel]}
+      ]
 
       def recommend_channels
         @recommended_channels = Community.recommended.exclude_array_ids
@@ -153,6 +165,10 @@ module Api
 
       def find_out_channels
         render_custom_channels(DEFAULT_FIND_OUT_CHANNELS)
+      end
+
+      def leicester_channels
+        render_custom_channels(DEFAULT_LEICESTER_CHANNELS)
       end
 
       def starter_packs_channels
