@@ -100,13 +100,17 @@ Rails.application.configure do
     s3_credentials: {
       bucket: ENV['S3_BUCKET'],
       access_key_id: ENV['AWS_ACCESS_KEY_ID'],
-      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY'],
-      s3_region: ENV['S3_REGION']
+      secret_access_key: ENV['AWS_SECRET_ACCESS_KEY']
     },
+    s3_region: ENV['S3_REGION'],
     url: ':s3_alias_url',
-    s3_host_alias: ENV["S3_ALIAS_HOST"],
-    path: ':class/:attachment/:id_partition/:style/:filename',
-    s3_protocol: :https
+    s3_host_alias: ENV['S3_ALIAS_HOST'],
+    s3_options: {
+      endpoint: ENV['S3_ENDPOINT'],
+      force_path_style: true
+    },
+    s3_protocol: :https,
+    path: ':class/:attachment/:id_partition/:style/:filename'
   }
 
     # Configure AWS
