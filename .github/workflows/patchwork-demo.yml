@@ -4,11 +4,12 @@ on:
   workflow_dispatch:
   push:
     branches:
-      - mome
+      - production-deployment
 
 env:
   DEFINITION:
     .task/mome-dashboard.json
+
 permissions:
   contents: read
 

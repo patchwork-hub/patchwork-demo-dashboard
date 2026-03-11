@@ -20,7 +20,7 @@
           %button.btn.btn-danger.d-flex.align-items-center.ml-3{ onclick: "window.location='#{new_app_version_path(app_name: params[:app_name])}'" }
             Create App version
             = image_tag("icons/circle-plus.svg",class: "ml-2", width: "16", height: "16")
-            
+
       .card-body
         %table.table.no-side-borders.top-bottom-border{data: {url: app_versions_url, type: 'app_version'}}
           %thead

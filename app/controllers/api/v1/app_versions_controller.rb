@@ -23,6 +23,10 @@ module Api
 
 			private
 
+			def render_error(message: "", status_code: 400)
+				render json: { error: message }, status: status_code
+			end
+
 			def set_app_version
 				key = app_version_params[:app_name]&.to_sym || :mo_me
 				app_name = AppVersion.app_names[key] || AppVersion.app_names[:mo_me]
