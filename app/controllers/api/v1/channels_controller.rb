@@ -55,14 +55,45 @@ module Api
       ].freeze
 
       DEFAULT_FIND_OUT_CHANNELS = [
-        { slug: 'us-politics', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'findoutpodcast', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'getangry', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'notjackryan', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'magareactions', channel_type: Community.channel_types[:channel_feed]},
+      ].freeze
+
+      DEFAULT_FIND_OUT_CATCH_UP = [
+        { slug: 'uselections', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'us-politics', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'breaking-news', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'movies', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'us-sport', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'technology', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'food-drink', channel_type: Community.channel_types[:newsmast]},
+      ].freeze
+
+      DEFAULT_FIND_OUT_SPEAK_OUT = [
+        { slug: 'activism-civil-rights', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'lgbtq', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'black-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'disabled-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'immigrants-rights', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'indigenous-peoples', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'women-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'workers-rights', channel_type: Community.channel_types[:newsmast]},
+      ].freeze
+
+      DEFAULT_LEICESTER_CHANNELS = [
+        { slug: 'Leicester', channel_type: Community.channel_types[:channel_feed] },
         { slug: 'activism-civil-rights', channel_type: Community.channel_types[:newsmast] },
         { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
-        { slug: 'democracy-human-rights', channel_type: Community.channel_types[:newsmast]},
-        { slug: 'news-comment-data', channel_type: Community.channel_types[:newsmast] },
-        { slug: 'lgbtq', channel_type: Community.channel_types[:newsmast] },
-        { slug: 'us-sport', channel_type: Community.channel_types[:newsmast]}
-      ].freeze
+        { slug: 'trees', channel_type: Community.channel_types[:channel_feed] },
+        { slug: 'podcasting', channel_type: Community.channel_types[:channel_feed] },
+        { slug: 'greens', channel_type: Community.channel_types[:channel]},
+        { slug: 'fedibookclub', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'NoticiasBrasil', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'RenewedResistance', channel_type: Community.channel_types[:channel]}
+      ]
 
       def recommend_channels
         @recommended_channels = Community.recommended.exclude_array_ids
@@ -153,6 +184,18 @@ module Api
 
       def find_out_channels
         render_custom_channels(DEFAULT_FIND_OUT_CHANNELS)
+      end
+
+      def find_out_catch_up
+        render_custom_channels(DEFAULT_FIND_OUT_CATCH_UP)
+      end
+
+      def find_out_speak_out
+        render_custom_channels(DEFAULT_FIND_OUT_SPEAK_OUT)
+      end
+
+      def leicester_channels
+        render_custom_channels(DEFAULT_LEICESTER_CHANNELS)
       end
 
       def starter_packs_channels
