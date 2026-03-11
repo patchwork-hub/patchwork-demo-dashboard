@@ -168,7 +168,7 @@ class CommunityPostService < BaseService
       community_attributes[:banner_image].rewind
     end
 
-    UpdateBoostBotProfileJob.perform_later(account_id: @account.id, community_id: @community.id, is_update: @options[:id].present?, attributes: job_attributes)
+    # UpdateBoostBotProfileJob.perform_later(account_id: @account.id, community_id: @community.id, is_update: @options[:id].present?, attributes: job_attributes)
     
     # Temporarily disable direct updates to avoid file handling issues. The background job will handle the updates.
     # p "START_UPDATING_ACCOUNT #{@community.slug.parameterize.underscore}"
