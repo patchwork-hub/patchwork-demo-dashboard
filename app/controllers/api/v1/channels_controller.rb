@@ -5,7 +5,7 @@ module Api
     class ChannelsController < ApiController
       skip_before_action :verify_key!
       before_action :check_authorization_header, only: [:channel_detail, :channel_feeds, :newsmast_channels, :my_channel, :mo_me_channels, :patchwork_demo_channels, :toot_channels, :bristol_cable_channels, :find_out_channels]
-      before_action :set_channel, only: [:channel_detail, :channel_feeds]
+      before_action :set_channel, only: [:channel_detail, :channel_feeds, :change_boost_bot_profile]
 
       DEFAULT_MO_ME_CHANNELS = [
         { slug: 'mediarevolution', channel_type: Community.channel_types[:channel] },
@@ -60,8 +60,14 @@ module Api
         { slug: 'activism-civil-rights', channel_type: Community.channel_types[:newsmast] },
         { slug: 'privacy', channel_type: Community.channel_types[:channel_feed] },
         { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
-        { slug: 'lgbtq', channel_type: Community.channel_types[:newsmast] },
-        { slug: 'us-sport', channel_type: Community.channel_types[:newsmast]}
+        { slug: 'lgbtq', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'black-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'disabled-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'immigrants-rights', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'indigenous-peoples', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'neurodivergent', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'women-voices', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'workers-rights', channel_type: Community.channel_types[:newsmast]},
       ].freeze
 
       DEFAULT_LEICESTER_CHANNELS = [
@@ -74,6 +80,23 @@ module Api
         { slug: 'fedibookclub', channel_type: Community.channel_types[:channel_feed]},
         { slug: 'NoticiasBrasil', channel_type: Community.channel_types[:channel_feed]},
         { slug: 'RenewedResistance', channel_type: Community.channel_types[:channel]}
+      ]
+
+      DEFAULT_CSIDNET_CHANNELS = [
+        { slug: 'hunger-disease-water', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'climate-change', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'biology', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'science', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'academia-research', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'environment', channel_type: Community.channel_types[:newsmast]},
+        { slug: 'biodiversity-rewilding', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'chemistry', channel_type: Community.channel_types[:newsmast] }
+      ]
+
+      DEFAULT_BRAZILIAN_MUSEUM_CHANNELS = [
+        { slug: 'museums', channel_type: Community.channel_types[:channel_feed]},
+        { slug: 'history', channel_type: Community.channel_types[:newsmast] },
+        { slug: 'performing-arts', channel_type: Community.channel_types[:newsmast] }
       ]
 
       def recommend_channels
@@ -171,6 +194,14 @@ module Api
         render_custom_channels(DEFAULT_LEICESTER_CHANNELS)
       end
 
+      def csidnet_channels
+        render_custom_channels(DEFAULT_CSIDNET_CHANNELS)
+      end
+
+      def brazilian_museum_channels
+        render_custom_channels(DEFAULT_BRAZILIAN_MUSEUM_CHANNELS)
+      end
+
       def starter_packs_channels
         starter_packs_channels = load_json_data(starter_pack_data_path('starter_pack_list.json'))
 
@@ -193,6 +224,19 @@ module Api
           channel: channel,
           followers: followers
         }
+      end
+
+      
+
+      def change_boost_bot_profile
+        if @channel.nil? || !@channel.boost_bot?
+          return render_errors('api.community.errors.not_found', :not_found)
+        end
+        @channel.update!(boost_bot_profile_params)
+        render_updated(
+          {},
+          'api.messages.updated'
+        )
       end
 
       private
@@ -278,6 +322,35 @@ module Api
         else
           'twt'
         end
+      end
+
+      def boost_bot_profile_channel_id
+        params[:id].presence || params[:community_id].presence
+      end
+
+      def boost_bot_profile_params
+        source_params = params[:channel].is_a?(ActionController::Parameters) ? params[:channel] : params
+
+        update_params = {
+          name: source_params[:name],
+          description: source_params[:description]
+        }
+
+        if !source_params.key?(:avatar) && source_params[:avatar].nil?
+          @channel.avatar_image = nil
+          @channel.avatar_image_file_name = nil
+        else
+          update_params[:avatar_image] = source_params[:avatar]
+        end
+
+        if !source_params.key?(:banner) && source_params[:banner].nil?
+          @channel.banner_image = nil
+          @channel.banner_image_file_name = nil
+        else
+          update_params[:banner_image] = source_params[:banner]
+        end
+
+        update_params.compact
       end
     end
   end
