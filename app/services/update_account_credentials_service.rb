@@ -4,7 +4,9 @@
 require "httparty"
 
 class UpdateAccountCredentialsService < BaseService
-  def call(token:, display_name: nil, note: nil, avatar: nil, header: nil, api_base_url: ENV["MASTODON_INSTANCE_URL"])
+  def call(token:, display_name: nil, note: nil, avatar: nil, header: nil, api_base_url: ENV["MASTODON_INSTANCE_URL"], channel_type: nil)
+    return unless token &&  channel_type == Community.channel_types[:channel_feed]
+
     url = "#{api_base_url}/api/v1/accounts/update_credentials"
     headers = { "Authorization" => "Bearer #{token}" }
     @opened_uploads = []
@@ -13,10 +15,12 @@ class UpdateAccountCredentialsService < BaseService
     header_file = normalize_upload(header)
 
     body = {}
-    body[:display_name] = display_name if display_name
-    body[:note] = note if note
+    body[:display_name] = display_name.b if display_name
+    body[:note] = note.b if note
     body[:avatar] = avatar_file if avatar_file
     body[:header] = header_file if header_file
+    body[:channel_type] = channel_type
+    body[:skip_dashboard_profile] = true
 
     HTTParty.patch(
       url,
@@ -62,26 +66,13 @@ class UpdateAccountCredentialsService < BaseService
       begin
         if defined?(Paperclip) && Paperclip.respond_to?(:io_adapters)
           adapter = Paperclip.io_adapters.for(value)
-          
-          require 'fileutils'
-          tmp_dir = Rails.root.join('tmp', 'patchwork_uploads', SecureRandom.hex(8))
-          FileUtils.mkdir_p(tmp_dir)
-          tmp_file_path = File.join(tmp_dir, original_name)
-          
-          File.open(tmp_file_path, 'wb') do |f|
-            f.write(adapter.read)
-          end
-          
-          file = File.open(tmp_file_path, 'rb')
-          
+          file = File.open(adapter.path, 'rb')
+
           @opened_uploads << file
-          @opened_temp_paths ||= []
-          @opened_temp_paths << tmp_file_path
-          
           return file
         end
       rescue => e
-        Rails.logger.error("Error creating temp upload file: #{e.message}")
+        Rails.logger.error("Error fetching paperclip adapter: #{e.message}")
         return nil
       end
 

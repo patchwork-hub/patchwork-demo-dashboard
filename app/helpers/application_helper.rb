@@ -15,7 +15,6 @@ module ApplicationHelper
 
     if master_admin?
       links = [
-        { path: '/homepage', id: 'homepage-link', header: 'Homepage', icon: 'home.svg', text: 'Home', active_if: 'homepage' },
         { path: server_settings_path, id: 'server-settings-link', header: 'Server settings', icon: 'sliders.svg', text: 'Server settings', active_if: ['server_settings', 'keyword_filter_groups', 'keyword_filters'] },
         { path: '/installation', id: 'installation-link', header: 'Installation', icon: 'screwdriver-wrench.svg', text: 'Installation', active_if: 'installation' }
       ]
@@ -40,7 +39,7 @@ module ApplicationHelper
       end
 
       links += [
-        # { path: accounts_path, id: 'accounts-link', header: 'Users', icon: 'users.svg', text: 'Users', active_if: 'accounts' },
+        { path: accounts_path, id: 'accounts-link', header: 'Users', icon: 'users.svg', text: 'Users', active_if: 'accounts' },
         { path: custom_emojis_path, id: 'custom-emojis-link', header: 'Custom emojis', icon: 'custom-emojis.svg', text: 'Custom emojis', active_if: 'custom_emojis' },
         { path: resources_path, id: 'resources-link', header: 'Resources', icon: 'folder.svg', text: 'Resources', active_if: 'resources' },
         { path: api_keys_path, id: 'resources-link', header: 'API Key', icon: 'key.svg', text: 'API Key', active_if: 'api_keys' }
@@ -118,6 +117,14 @@ module ApplicationHelper
     current_user && policy(current_user).newsmast_admin?
   end
 
+  def channel_post_hashtag_enabled?
+    ENV['CHANNEL_POST_HASHTAG_ENABLED'] == 'true'
+  end
+
+  def newsmast_post_hashtag_enabled?
+    ENV['NEWSMAST_POST_HASHTAG_ENABLED'] == 'true'
+  end
+
   def render_custom_emojis(text)
     emoji_map = MastodonEmoji.fetch_and_cache_emojis
 
@@ -135,7 +142,7 @@ module ApplicationHelper
     if Rails.env.development?
       return true
     end
-    
+
     if ENV.fetch('CHANNELS_ENABLED', nil) == 'true'
       return true
     end
@@ -155,7 +162,7 @@ module ApplicationHelper
 
   def is_channel_instance?
     if Rails.env.development?
-      return false
+      return true
     end
 
     if  ENV.fetch('LOCAL_DOMAIN', nil) == 'channel.org' || ENV.fetch('LOCAL_DOMAIN', nil) == 'staging.patchwork.online'
