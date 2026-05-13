@@ -152,64 +152,17 @@ class CommunityPostService < BaseService
   end
 
   def update_account_attributes(community_attributes)
-    require 'base64'
-
     job_attributes = community_attributes.slice(:name, :description)
     
     if community_attributes[:avatar_image].present?
-      job_attributes[:avatar_base64] = Base64.strict_encode64(community_attributes[:avatar_image].read)
-      job_attributes[:avatar_filename] = community_attributes[:avatar_image].original_filename
-      community_attributes[:avatar_image].rewind
+      job_attributes[:avatar_changed] = true
     end
 
     if community_attributes[:banner_image].present?
-      job_attributes[:banner_base64] = Base64.strict_encode64(community_attributes[:banner_image].read)
-      job_attributes[:banner_filename] = community_attributes[:banner_image].original_filename
-      community_attributes[:banner_image].rewind
+      job_attributes[:banner_changed] = true
     end
 
-    UpdateBoostBotProfileJob.perform_later(account_id: @account.id, community_id: @community.id, is_update: @options[:id].present?, attributes: job_attributes)
-    
-    # Temporarily disable direct updates to avoid file handling issues. The background job will handle the updates.
-    # p "START_UPDATING_ACCOUNT #{@community.slug.parameterize.underscore}"
-    # if @options[:id].present?
-    #   @account.update!(
-    #     display_name: @community.name,
-    #     avatar: @community.avatar_image || '',
-    #     header: @community.banner_image || '',
-    #     note: @community.description || ''
-    #   )
-    # else
-    #   actor_type = @community.hub? ? "Application" : "Service"
-    #   @account.update!(
-    #     display_name: @community.name,
-    #     username: @community.slug.parameterize.underscore,
-    #     note: @community.description,
-    #     avatar: @community.avatar_image || '',
-    #     header: @community.banner_image || '',
-    #     actor_type: actor_type,
-    #     discoverable: true
-    #   )
-    # end
-
-    # token = GenerateAdminAccessTokenService.new(@account.user.id).call
-
-    # UpdateAccountCredentialsService.new.call(
-    # token: token,
-    # display_name: @community.name,
-    # note: @community.description,
-    # avatar: @community.avatar_image,  # Paperclip attachment
-    # header: @community.banner_image   # Paperclip attachment
-    # )
-
-    # unless @options[:id].present?
-    #   actor_type = @community.hub? ? "Application" : "Service"
-    #   @account.update!(
-    #     username: @community.slug.parameterize.underscore,
-    #     actor_type: actor_type,
-    #     discoverable: true
-    #   )
-    # end
+    UpdateBoostBotProfileJob.set(wait: 60.seconds).perform_later(account_id: @account.id, community_id: @community.id, is_update: @options[:id].present?, attributes: job_attributes)
   end
 
   def set_community_admin
@@ -267,7 +220,7 @@ class CommunityPostService < BaseService
       is_recommended: @options[:is_recommended],
       no_boost_channel: @options[:no_boost_channel],
       guides: nil,
-      position: get_position,
+      position: @options[:position].present? ? @options[:position].to_i : get_position,
       admin_following_count: 0,
       patchwork_community_type_id: @community_type.id,
       channel_type: @options[:channel_type],
@@ -289,21 +242,21 @@ class CommunityPostService < BaseService
       @community&.logo_image = nil
       @community&.logo_image_file_name = nil
     else
-      attributes[:logo_image] = @options[:logo_image]
+      attributes[:logo_image] = randomize_filename(@options[:logo_image])
     end
 
     if @options[:avatar_image].nil? && !@community&.avatar_image.present?
       @community&.avatar_image = nil
       @community&.avatar_image_file_name = nil
     else
-      attributes[:avatar_image] = @options[:avatar_image]
+      attributes[:avatar_image] = randomize_filename(@options[:avatar_image])
     end
 
     if @options[:banner_image].nil? && !@community&.banner_image.present?
       @community&.banner_image = nil
       @community&.banner_image_file_name = nil
     else
-      attributes[:banner_image] = @options[:banner_image]
+      attributes[:banner_image] = randomize_filename(@options[:banner_image])
     end
 
     attributes.compact
@@ -316,5 +269,13 @@ class CommunityPostService < BaseService
   def get_position
     last_position = Community.order(:position).pluck(:position).last
     (last_position || 0) + 1
+  end
+
+  def randomize_filename(file)
+    return file unless file.respond_to?(:original_filename) && file.original_filename.present?
+
+    extension = File.extname(file.original_filename)
+    file.original_filename = "#{SecureRandom.hex(8)}#{extension}"
+    file
   end
 end

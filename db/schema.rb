@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
+ActiveRecord::Schema[7.1].define(version: 2026_05_08_093400) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -198,10 +198,10 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
     t.datetime "requested_review_at", precision: nil
     t.boolean "indexable", default: false, null: false
     t.string "attribution_domains", default: [], array: true
-    t.boolean "is_banned", default: false
-    t.string "devices_url"
     t.string "following_url", default: "", null: false
     t.integer "id_scheme", default: 1
+    t.boolean "is_banned", default: false
+    t.string "devices_url"
     t.index "(((setweight(to_tsvector('simple'::regconfig, (display_name)::text), 'A'::\"char\") || setweight(to_tsvector('simple'::regconfig, (username)::text), 'B'::\"char\")) || setweight(to_tsvector('simple'::regconfig, (COALESCE(domain, ''::character varying))::text), 'C'::\"char\")))", name: "search_index", using: :gin
     t.index "lower((username)::text), COALESCE(lower((domain)::text), ''::text)", name: "index_accounts_on_username_and_domain_lower", unique: true
     t.index ["domain", "id"], name: "index_accounts_on_domain_and_id"
@@ -937,6 +937,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
   end
 
   create_table "patchwork_communities_admins", force: :cascade do |t|
+    t.bigint "account_id"
     t.bigint "patchwork_community_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -944,7 +945,6 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
     t.string "email"
     t.string "username"
     t.string "password"
-    t.bigint "account_id"
     t.string "role"
     t.boolean "is_boost_bot", default: false, null: false
     t.integer "account_status", default: 0, null: false
@@ -1323,6 +1323,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
     t.datetime "deleted_at"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "key"
+    t.index ["key"], name: "index_server_settings_on_key", unique: true, where: "(key IS NOT NULL)"
   end
 
   create_table "session_activations", force: :cascade do |t|
@@ -1604,6 +1606,8 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
     t.string "time_zone"
     t.string "otp_secret"
     t.datetime "age_verified_at"
+    t.boolean "require_tos_interstitial", default: false, null: false
+    t.boolean "alttext_enabled", default: false, null: false
     t.string "did_value"
     t.boolean "bluesky_bridge_enabled", default: false, null: false
     t.boolean "require_tos_interstitial", default: false, null: false
@@ -1760,7 +1764,7 @@ ActiveRecord::Schema[7.1].define(version: 2025_12_02_143553) do
   add_foreign_key "oauth_applications", "users", column: "owner_id", name: "fk_b0988c7c0a", on_delete: :cascade
   add_foreign_key "patchwork_app_version_histories", "patchwork_app_versions", column: "app_version_id"
   add_foreign_key "patchwork_communities", "patchwork_collections"
-  add_foreign_key "patchwork_communities_admins", "accounts", on_delete: :cascade
+  add_foreign_key "patchwork_communities_admins", "accounts"
   add_foreign_key "patchwork_communities_admins", "patchwork_communities"
   add_foreign_key "patchwork_communities_filter_keywords", "patchwork_communities", on_delete: :cascade
   add_foreign_key "patchwork_communities_hashtags", "patchwork_communities", on_delete: :cascade
