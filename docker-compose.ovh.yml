@@ -1,0 +1,53 @@
+# OVH Public Cloud deployment compose file for patchwork.io dashboard
+# Images are built and pushed by .github/workflows/build-push-ovh-harbor.yml
+# which updates the image line below on every push.
+#
+# Environment variables used by this file:
+#   COMPOSE_PROJECT_NAME     - Docker Compose project name (default: dashboard)
+#   PATCHWORK_IO_ENV_FILE    - path to the dashboard .env file
+#                              (default: /home/ubuntu/deployment/credential/.env.patchwork-io)
+#   PATCHWORK_IO_DASHBOARD_PORT - host port mapped to container port 3000 (default: 3001)
+#
+# With the defaults, run it by hand from its deployment directory with no variables:
+#   cd /home/ubuntu/deployment/dashboard
+#   docker compose -f docker-compose.ovh.yml down && docker compose -f docker-compose.ovh.yml up -d
+
+name: ${COMPOSE_PROJECT_NAME:-dashboard}
+
+services:
+  dashboard:
+    # TAGS ARE UPDATED BY CI — do not edit manually
+    image: 44eda7q3.gra7.container-registry.ovh.net/patchwork-io/dashboard:dashboard-latest
+    restart: unless-stopped
+    # Matches AWS ECS dashboard task definition: 512 CPU units / 1024 MB memory
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 1G
+        reservations:
+          cpus: "0.5"
+          memory: 1G
+    env_file:
+      - ${PATCHWORK_IO_ENV_FILE:-/home/ubuntu/deployment/credential/.env.patchwork-io}
+    environment:
+      - RAILS_ENV=production
+      - RAILS_SERVE_STATIC_FILES=true
+      - RAILS_LOG_TO_STDOUT=true
+    ports:
+      - "127.0.0.1:${PATCHWORK_IO_DASHBOARD_PORT:-3001}:3000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/health_check || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    volumes:
+      - dashboard_storage:/usr/app/storage
+      - dashboard_public:/usr/app/public/system
+      - dashboard_logs:/usr/app/log
+
+volumes:
+  dashboard_storage:
+  dashboard_public:
+  dashboard_logs:
