@@ -3,14 +3,16 @@
 #
 # Table name: user_roles
 #
-#  id          :bigint           not null, primary key
-#  color       :string           default(""), not null
-#  highlighted :boolean          default(FALSE), not null
-#  name        :string           default(""), not null
-#  permissions :bigint           default(0), not null
-#  position    :integer          default(0), not null
-#  created_at  :datetime         not null
-#  updated_at  :datetime         not null
+#  id               :bigint           not null, primary key
+#  collection_limit :integer          default(10), not null
+#  color            :string           default(""), not null
+#  highlighted      :boolean          default(FALSE), not null
+#  name             :string           default(""), not null
+#  permissions      :bigint           default(0), not null
+#  position         :integer          default(0), not null
+#  require_2fa      :boolean          default(FALSE), not null
+#  created_at       :datetime         not null
+#  updated_at       :datetime         not null
 #
 class UserRole < ApplicationRecord
   # ---------------------------------------------------------------------------
