@@ -7,20 +7,24 @@
 #  also_known_as                 :string           is an Array
 #  attribution_domains           :string           default([]), is an Array
 #  avatar_content_type           :string
+#  avatar_description            :string           default(""), not null
 #  avatar_file_name              :string
 #  avatar_file_size              :integer
 #  avatar_remote_url             :string
 #  avatar_storage_schema_version :integer
 #  avatar_updated_at             :datetime
+#  collections_url               :string
 #  devices_url                   :string
 #  discoverable                  :boolean
 #  display_name                  :string           default(""), not null
 #  domain                        :string
+#  feature_approval_policy       :integer          default(0), not null
 #  featured_collection_url       :string
 #  fields                        :jsonb
 #  followers_url                 :string           default(""), not null
 #  following_url                 :string           default(""), not null
 #  header_content_type           :string
+#  header_description            :string           default(""), not null
 #  header_file_name              :string
 #  header_file_size              :integer
 #  header_remote_url             :string           default(""), not null
@@ -39,15 +43,19 @@
 #  private_key                   :text
 #  protocol                      :integer          default(0), not null
 #  public_key                    :text             default(""), not null
+#  requested_deletion_at         :datetime
 #  requested_review_at           :datetime
 #  reviewed_at                   :datetime
 #  sensitized_at                 :datetime
 #  shared_inbox_url              :string           default(""), not null
+#  show_featured                 :boolean          default(TRUE), not null
+#  show_media                    :boolean          default(TRUE), not null
+#  show_media_replies            :boolean          default(TRUE), not null
 #  silenced_at                   :datetime
 #  suspended_at                  :datetime
 #  suspension_origin             :integer
 #  trendable                     :boolean
-#  uri                           :string           default(""), not null
+#  uri                           :string
 #  url                           :string
 #  username                      :string           default(""), not null
 #  created_at                    :datetime         not null
@@ -58,7 +66,7 @@
 #
 #  index_accounts_on_domain_and_id              (domain,id)
 #  index_accounts_on_moved_to_account_id        (moved_to_account_id) WHERE (moved_to_account_id IS NOT NULL)
-#  index_accounts_on_uri                        (uri)
+#  index_accounts_on_uri                        (uri) UNIQUE
 #  index_accounts_on_url                        (url) WHERE (url IS NOT NULL)
 #  index_accounts_on_username_and_domain_lower  (lower((username)::text), COALESCE(lower((domain)::text), ''::text)) UNIQUE
 #  search_index                                 ((((setweight(to_tsvector('simple'::regconfig, (display_name)::text), 'A'::"char") || setweight(to_tsvector('simple'::regconfig, (username)::text), 'B'::"char")) || setweight(to_tsvector('simple'::regconfig, (COALESCE(domain, ''::character varying))::text), 'C'::"char")))) USING gin
@@ -121,7 +129,7 @@ class Account < ApplicationRecord
       id_path = id.to_s.scan(/.{3}/).join('/')
       "https://#{ENV['S3_ALIAS_HOST']}/accounts/avatars/#{id_path}/original/#{avatar_file_name}"
     else
-      ActionController::Base.helpers.asset_path('patchwork-logo.svg')
+      ActionController::Base.helpers.asset_path('newsmast-logo.png')
     end
   end
 
