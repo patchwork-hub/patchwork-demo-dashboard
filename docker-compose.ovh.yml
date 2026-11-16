@@ -5,7 +5,7 @@
 # Environment variables used by this file:
 #   COMPOSE_PROJECT_NAME     - Docker Compose project name (default: dashboard)
 #   PATCHWORK_IO_ENV_FILE    - path to the dashboard .env file
-#                              (default: /home/ubuntu/deployment/credential/.env.patchwork-io)
+#                              (default: /home/ubuntu/deployment/credential/.env.dashboard)
 #   PATCHWORK_IO_DASHBOARD_PORT - host port mapped to container port 3000 (default: 3001)
 #
 # With the defaults, run it by hand from its deployment directory with no variables:
@@ -29,7 +29,7 @@ services:
           cpus: "0.5"
           memory: 1G
     env_file:
-      - ${PATCHWORK_IO_ENV_FILE:-/home/ubuntu/deployment/credential/.env.patchwork-io}
+      - ${PATCHWORK_IO_ENV_FILE:-/home/ubuntu/deployment/credential/.env.dashboard}
     environment:
       - RAILS_ENV=production
       - RAILS_SERVE_STATIC_FILES=true
