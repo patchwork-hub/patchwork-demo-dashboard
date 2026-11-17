@@ -88,7 +88,6 @@ module ApplicationHelper
           operation_items << { path: app_versions_path(app_name: AppVersion.app_names['patchwork']), id: 'app-versions-link', header: 'App versions', icon: 'sliders.svg', text: 'App versions', active_if: 'app_versions' }
         end
       end
-      links << { path: app_versions_path(app_name: AppVersion.app_names['mo_me']), id: 'app-versions-link', header: 'App versions', icon: 'sliders.svg', text: 'App versions', active_if: 'app_versions' }
 
       # --- Build grouped structure ---
       groups = []
